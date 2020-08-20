@@ -1,0 +1,29 @@
+<template>
+  <div>Sidebar Item</div>
+</template>
+
+<script>
+export default {
+  name: "SidebarItem",
+};
+</script>
+
+<style scoped>
+.listItem {
+  cursor: pointer;
+}
+
+.textSection {
+  max-width: 85%;
+}
+
+.deleteIcon {
+  position: absolute;
+  right: 5px;
+  top: calc(50% - 15px);
+}
+
+.deleteIcon:hover {
+  color: red;
+}
+</style>
