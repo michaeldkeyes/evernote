@@ -1,5 +1,15 @@
 <template>
-  <quill-editor @change="updateBody($event)" />
+  <div class="editorContainer">
+    <i class="fas fa-edit editIcon"></i>
+    <input
+      class="titleInput"
+      placeholder="Note title..."
+      type="text"
+      :value="title"
+      @change="updateTitle($event)"
+    />
+    <quill-editor :value="text" @change="updateBody($event)" />
+  </div>
 </template>
 
 <script>
@@ -15,6 +25,9 @@ export default {
   components: {
     quillEditor,
   },
+  props: {
+    selectedNote: Object,
+  },
   data: function () {
     return {
       text: "",
@@ -22,26 +35,47 @@ export default {
       id: "",
     };
   },
-  methods: {
-    updateBody: function ({ text }) {
-      this.text = text;
-      console.log(this.text);
-      this.update();
+  watch: {
+    selectedNote: function () {
+      if (this.selectedNote.id !== this.id) {
+        this.text = this.selectedNote.body;
+        this.title = this.selectedNote.title;
+        this.id = this.selectedNote.id;
+      }
     },
-    update: debounce(function () {
-      console.log("Updating database");
-    }, 1500),
+  },
+  methods: {
+    updateBody: function ({ html }) {
+      this.text = html;
+      this.debounce();
+    },
+    update: function () {
+      this.$emit("noteUpdate", {
+        id: this.id,
+        title: this.title,
+        body: this.text,
+      });
+    },
+    updateTitle: function () {
+      this.title = event.target.value;
+      this.debounce();
+    },
+  },
+  created: function () {
+    this.debounce = debounce(this.update, 1500);
+  },
+  mounted: function () {
+    this.text = this.selectedNote.body;
+    this.title = this.selectedNote.title;
+    this.id = this.selectedNote.id;
   },
 };
 </script>
 
 <style scoped>
-.root {
-  height: calc(100% - 35px);
-  position: absolute;
-  left: 0;
-  width: 300px;
-  box-shadow: 0px 0px 2px #000;
+.editorContainer {
+  margin-left: 300px;
+  height: 100%;
 }
 
 .titleInput {
@@ -49,8 +83,8 @@ export default {
   border: none;
   padding: 5px;
   font-size: 24px;
-  width: calc(100% - 300px);
-  background-color: #29487d;
+  width: 100%;
+  background-color: #44297d;
   color: #fff;
   padding-left: 50px;
 }
